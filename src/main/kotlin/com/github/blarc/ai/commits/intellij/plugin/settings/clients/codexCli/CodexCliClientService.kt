@@ -124,17 +124,64 @@ class CodexCliClientService(private val cs: CoroutineScope) : LlmCliClientServic
     private fun resolveCliPath(client: CodexCliClientConfiguration): String {
         val configuredPath = client.cliPath.trim()
         if (configuredPath.isNotBlank()) {
-            return configuredPath
+            resolveExecutablePath(configuredPath)?.let { return it }
+            throw IllegalStateException(message("codexCli.pathNotFound", configuredPath))
         }
-        throw IllegalStateException(message("codexCli.pathNotConfigured"))
+
+        findOnPath()?.let { return it }
+        throw IllegalStateException(message("codexCli.cliNotFound"))
     }
 
     private fun isExecutable(file: File): Boolean {
         return if (SystemInfo.isWindows) {
-            file.isFile
+            file.isFile && isWindowsExecutable(file)
         } else {
             file.isFile && file.canExecute()
         }
+    }
+
+    private fun resolveExecutablePath(path: String): String? {
+        val file = File(path)
+        if (isExecutable(file)) {
+            return file.absolutePath
+        }
+
+        if (SystemInfo.isWindows && file.extension.isBlank()) {
+            val candidates = listOf("$path.cmd", "$path.exe", "$path.bat", "$path.com")
+            for (candidate in candidates) {
+                val candidateFile = File(candidate)
+                if (isExecutable(candidateFile)) {
+                    return candidateFile.absolutePath
+                }
+            }
+        }
+
+        return null
+    }
+
+    private fun findOnPath(): String? {
+        val pathValue = System.getenv("PATH") ?: return null
+        val candidates = if (SystemInfo.isWindows) {
+            listOf("codex.cmd", "codex.exe", "codex.bat", "codex.com")
+        } else {
+            listOf("codex")
+        }
+        val paths = pathValue.split(File.pathSeparatorChar)
+        for (dir in paths) {
+            if (dir.isBlank()) continue
+            for (name in candidates) {
+                val file = File(dir, name)
+                if (isExecutable(file)) {
+                    return file.absolutePath
+                }
+            }
+        }
+        return null
+    }
+
+    private fun isWindowsExecutable(file: File): Boolean {
+        val extension = file.extension.lowercase()
+        return extension in setOf("exe", "cmd", "bat", "com")
     }
 
     private fun readOutputMessage(outputFile: File): String {

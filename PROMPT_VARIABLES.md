@@ -1,6 +1,6 @@
 # Prompt Template Variables
 
-When writing a custom prompt in AI Commits, you can use the following placeholder variables.
+When writing a custom prompt in Ai Commits Plus, you can use the following placeholder variables.
 They are replaced with real values at commit-message generation time
 (see `AICommitsUtils.constructPrompt()`).
 

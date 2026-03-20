@@ -98,6 +98,37 @@ abstract class LlmClientService<C : LlmClientConfiguration>(private val cs: Coro
         }
     }
 
+    fun generateTestMessage(
+        client: C,
+        prompt: String,
+        project: Project,
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        cs.launch(ModalityState.current().asContextElement()) {
+            withBackgroundProgress(project, message("action.background")) {
+                try {
+                    val response = withContext(Dispatchers.IO) {
+                        val model = buildChatModel(client)
+                        model.chat(listOf(UserMessage.from("user", prompt))).aiMessage().text()
+                    }
+                    withContext(Dispatchers.EDT) {
+                        onSuccess(response)
+                    }
+                } catch (e: IllegalArgumentException) {
+                    withContext(Dispatchers.EDT) {
+                        onError(message("settings.verify.invalid", e.message ?: message("unknown-error")))
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.EDT) {
+                        onError(e.message ?: message("unknown-error"))
+                    }
+                    throw e
+                }
+            }
+        }
+    }
+
     private suspend fun makeRequestWithTryCatch(function: suspend () -> Unit, onError: suspend (r: String) -> Unit) {
         try {
             function()
@@ -129,10 +160,7 @@ abstract class LlmClientService<C : LlmClientConfiguration>(private val cs: Coro
         withContext(Dispatchers.IO) {
             streamingModel.chat(
                 listOf(
-                    UserMessage.from(
-                        "user",
-                        text
-                    )
+                    UserMessage.from("user", text)
                 ),
                 object : StreamingChatResponseHandler {
                     override fun onPartialResponse(partialResponse: String?) {

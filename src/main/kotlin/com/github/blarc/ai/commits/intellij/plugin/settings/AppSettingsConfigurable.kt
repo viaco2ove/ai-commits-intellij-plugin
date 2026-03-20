@@ -3,6 +3,9 @@ package com.github.blarc.ai.commits.intellij.plugin.settings
 import com.github.blarc.ai.commits.intellij.plugin.AICommitsBundle
 import com.github.blarc.ai.commits.intellij.plugin.AICommitsBundle.message
 import com.github.blarc.ai.commits.intellij.plugin.AICommitsUtils
+import com.github.blarc.ai.commits.intellij.plugin.TestAiCommitsPlusDialog
+import com.github.blarc.ai.commits.intellij.plugin.notifications.Notification
+import com.github.blarc.ai.commits.intellij.plugin.notifications.sendNotification
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.LlmClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.LlmClientTable
 import com.github.blarc.ai.commits.intellij.plugin.settings.prompts.Prompt
@@ -163,6 +166,17 @@ class AppSettingsConfigurable(val project: Project, cs: CoroutineScope) : BoundC
             browserLink(message("settings.github-star"), AICommitsBundle.URL_GITHUB.toString())
             browserLink(message("settings.kofi"), AICommitsBundle.URL_KOFI.toString())
             browserLink(message("settings.github-sponsors"), AICommitsBundle.URL_GITHUB_SPONSORS.toString())
+        }
+
+        row {
+            button(message("settings.test.title")) {
+                val llmClient = project.service<ProjectSettings>().getSplitButtonActionSelectedOrActiveLLMClient()
+                if (llmClient == null) {
+                    sendNotification(Notification.clientNotSet())
+                } else {
+                    TestAiCommitsPlusDialog(project, llmClient).show()
+                }
+            }
         }
     }
 

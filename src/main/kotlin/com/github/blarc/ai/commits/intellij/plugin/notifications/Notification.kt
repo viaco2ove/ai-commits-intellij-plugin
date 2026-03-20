@@ -27,7 +27,7 @@ data class Notification(
 
         fun star() = Notification(
             message = """
-                Finding AI Commits useful? Show your support 💖 and ⭐ the repository 🙏.
+                Finding Ai Commits Plus useful? Show your support 💖 and ⭐ the repository 🙏.
             """.trimIndent(),
             actions = setOf(
                 NotificationAction.openRepository() {

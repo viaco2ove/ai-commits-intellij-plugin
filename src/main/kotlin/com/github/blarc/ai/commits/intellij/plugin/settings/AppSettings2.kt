@@ -10,10 +10,12 @@ import com.github.blarc.ai.commits.intellij.plugin.settings.clients.anthropic.An
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.azureOpenAi.AzureOpenAiClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.claudeCode.ClaudeCodeClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.codexCli.CodexCliClientConfiguration
+import com.github.blarc.ai.commits.intellij.plugin.settings.clients.deepseek.DeepseekClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.geminiGoogle.GeminiGoogleClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.geminiVertex.GeminiClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.githubModels.GitHubModelsClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.huggingface.HuggingFaceClientConfiguration
+import com.github.blarc.ai.commits.intellij.plugin.settings.clients.lmStudio.LmStudioClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.mistral.MistralAIClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.ollama.OllamaClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.openAi.OpenAiClientConfiguration
@@ -70,7 +72,9 @@ class AppSettings2 : PersistentStateComponent<AppSettings2> {
             MistralAIClientConfiguration::class,
             AmazonBedrockClientConfiguration::class,
             ClaudeCodeClientConfiguration::class,
-            CodexCliClientConfiguration::class
+            CodexCliClientConfiguration::class,
+            DeepseekClientConfiguration::class,
+            LmStudioClientConfiguration::class
         ],
         style = XCollection.Style.v2
     )

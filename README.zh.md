@@ -1,54 +1,45 @@
 <div align="center">
-    <a href="https://plugins.jetbrains.com/plugin/21335-ai-commits">
-        <img src="./src/main/resources/META-INF/pluginIcon.svg" width="200" height="200" alt="logo"/>
-    </a>
+<a href="https://plugins.jetbrains.com/plugin/21335-ai-commits">
+<img src="./src/main/resources/META-INF/pluginIcon.svg" width="200" height="200" alt="logo"/>
+</a></a>
 </div>
 <h1 align="center">Ai Commits Plus</h1>
-<p align="center">Ai Commits Plus for IntelliJ based IDEs/Android Studio.</p>
-
+<p align="center">适用于 IntelliJ 基础版 IDE 和 Android Studio 的 Ai Commits Plus。</p>
 <p align="center">
-<a href="https://actions-badge.atrox.dev/blarc/ai-commits-intellij-plugin/goto?ref=main"><img alt="Build Status" src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fblarc%2Fai-commits-intellij-plugin%2Fbadge%3Fref%3Dmain&style=popout-square" /></a>
-<a href="https://plugins.jetbrains.com/plugin/21335-ai-commits"><img src="https://img.shields.io/jetbrains/plugin/r/stars/21335?style=flat-square"></a>
-<a href="https://plugins.jetbrains.com/plugin/21335-ai-commits"><img src="https://img.shields.io/jetbrains/plugin/d/21335-ai-commits.svg?style=flat-square"></a>
-<a href="https://plugins.jetbrains.com/plugin/21335-ai-commits"><img src="https://img.shields.io/jetbrains/plugin/v/21335-ai-commits.svg?style=flat-square"></a>
-</p>
+<a href="https://actions-badge.atrox.dev/blarc/ai-commits-intellij-plugin/goto?ref=main"><img alt="构建状态" src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2Fblarc%2Fai-commits-intellij-plugin%2Fbadge%3Fref%3Dmain&style=popout-square" /></a>
+<a href="https://plugins.jetbrains.com/plugin/21335-ai-commits"><img src="https://img.shields.io/jetbrains/plugin/r/stars/21335？style=flat-square"></a>
+<a href="https://plugins.jetbrains.com/plugin/21335-ai-commits"><img src="https://img.shields.io/jetbrains/plugin/d/21335-ai-commits.svg？style=flat-square"></a>
+<a href="https://plugins.jetbrains.com/plugin/21335-ai-commits"><img src="https://img.shields.io/jetbrains/plugin/v/21335-ai-commits.svg？style=flat-square"></a></p>
 <br>
 
-- [Description](#description)
-- [Features](#features)
-- [Compatibility](#compatibility)
-- [Install](#install)
-- [Installation from zip](#installation-from-zip)
+- [描述](#描述)
+- [功能](#功能)
+- [兼容性](#兼容性)
+- [安装](#安装)
+- [从压缩包安装](#从压缩包安装
+  [//]: # （[演示]（#demo）
+## 描述
 
-[//]: # (- [Demo]&#40;#demo&#41;)
+“Ai Commits Plus”是一款插件，它通过使用 Git 差异和大型语言模型来生成您的提交信息。要开始使用，请先安装该插件，并在插件设置中配置一个语言模型 API 客户端：<kbd>设置</kbd> > <kbd>工具</kbd> > <kbd>Ai Commits Plus</kbd>
+## 特点/功能
+- 通过语言模型从 git 差异中生成提交消息
+- 仅从提交对话框中选定的文件和行计算差异
+- 创建用于生成提交消息的自定义提示
+- 使用预定义变量和提示来自定义提示
+- 支持 Git 和 Subversion 作为版本控制系统。
 
-## Description
-
-Ai Commits Plus is a plugin that generates your commit messages by using git diff and LLMs. To get started, install the
-plugin and configure a LLM API client in plugin's settings: <kbd>Settings</kbd> > <kbd>Tools</kbd> > <kbd>Ai Commits Plus</kbd>
-
-## Features
-
-- Generate commit message from git diff using LLM
-- Compute diff only from the selected files and lines in the commit dialog
-- Create your own prompt for commit message generation
-- Use predefined variables and hint to customize your prompt
-- Supports Git and Subversion as version control systems.
-
-## Supported models
+## Supported models （支持的模型）
 
 - Amazon Bedrock
 - Anthropic
 - Azure Open AI
 - Claude Code (via CLI)
 - Codex CLI (via CLI)
-- DeepSeek
 - Gemini Google AI
 - Gemini Vertex AI
 - GitHub Models
 - Hugging Face
 - Mistral AI
-- LM Studio
 - Open AI
 - Ollama
 - Qianfan (Ernie)
@@ -131,16 +122,24 @@ Please see [LICENSE](LICENSE) for details.
  </picture>
 </a>
 
-###Method 2: Through the IDE Plugin Marketplace (future support)
-The plug-in is under review and is expected to be installed through the official plug-in market soon.
-##Instructions for use
-### 1. first time setup
-1. ** Start Claude Code Tool Window**
-   - Find the Claude Code tool window on the right panel of IDEA.
-   - If not, open it via View → Tool Windows → Claude Code.
-2. ** Configure Claude Code path **
-   - Enter the full path to the Claude CLI in the "Claude Code Path" input box in the tool window
-   - For example: `/usr/local/bin/claude` or `C:\\Users\\username\\AppData\\\Local\\\claude\\claude.exe`
-3. ** Establish connection **
-   - Click the `Connect Claude Code` button
-   - Wait for the connection status to change to "Connected"
+
+
+### 方式二：通过IDE Plugin Marketplace（未来支持）
+
+插件正在审核中，预计很快可以通过官方插件市场安装。
+
+## 📖 使用说明
+
+### 1. 首次设置
+
+1. **启动Claude Code Tool Window**
+   - 在IDEA右侧面板找到 `Claude Code` 工具窗口
+   - 如果没有看到，通过 `View` → `Tool Windows` → `Claude Code` 打开
+
+2. **配置Claude Code路径**
+   - 在工具窗口的 "Claude Code路径" 输入框中输入Claude CLI的完整路径
+   - 例如: `/usr/local/bin/claude` 或 `C:\\Users\\username\\AppData\\Local\\claude\\claude.exe`
+
+3. **建立连接**
+   - 点击 `连接Claude Code` 按钮
+   - 等待连接状态变为 "已连接"

@@ -5,6 +5,7 @@ import com.github.blarc.ai.commits.intellij.plugin.AICommitsUtils.retrieveToken
 import com.github.blarc.ai.commits.intellij.plugin.notifications.Notification
 import com.github.blarc.ai.commits.intellij.plugin.notifications.sendNotification
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.LlmClientService
+import com.github.blarc.ai.commits.intellij.plugin.settings.clients.normalizeOpenAiBaseUrl
 import com.intellij.ide.passwordSafe.PasswordSafe
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
@@ -33,7 +34,7 @@ class OpenAiClientService(private val cs: CoroutineScope) : LlmClientService<Ope
             .modelName(client.modelId)
             .timeout(Duration.ofSeconds(client.timeout.toLong()))
             .topP(client.topP)
-            .baseUrl(client.host)
+            .baseUrl(normalizeOpenAiBaseUrl(client.host))
 
         client.temperature.takeIf { it.isNotBlank() }?.let {
             builder.temperature(it.toDouble())
@@ -53,7 +54,7 @@ class OpenAiClientService(private val cs: CoroutineScope) : LlmClientService<Ope
             .modelName(client.modelId)
             .timeout(Duration.ofSeconds(client.timeout.toLong()))
             .topP(client.topP)
-            .baseUrl(client.host)
+            .baseUrl(normalizeOpenAiBaseUrl(client.host))
 
         client.temperature.takeIf { it.isNotBlank() }?.let {
             builder.temperature(it.toDouble())

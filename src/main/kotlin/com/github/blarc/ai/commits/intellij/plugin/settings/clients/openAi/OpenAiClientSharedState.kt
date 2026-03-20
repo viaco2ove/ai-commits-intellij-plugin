@@ -15,7 +15,10 @@ class OpenAiClientSharedState : PersistentStateComponent<OpenAiClientSharedState
     }
 
     @XCollection(style = XCollection.Style.v2)
-    override val hosts = mutableSetOf("https://api.openai.com/v1")
+    override val hosts = mutableSetOf(
+        "https://api.openai.com/v1",
+        "http://127.0.0.1:1234/v1"
+    )
 
     @XCollection(style = XCollection.Style.v2)
     override val modelIds = OpenAiChatModelName.entries.stream()

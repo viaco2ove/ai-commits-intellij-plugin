@@ -65,4 +65,24 @@ abstract class LlmCliClientService<C : LlmClientConfiguration>(coroutineScope: C
      * Verify CLI configuration by executing a test command.
      */
     abstract fun verifyConfiguration(client: C, label: JBLabel)
+
+    fun generateTestMessage(
+        client: C,
+        prompt: String,
+        project: Project,
+        onSuccess: (String) -> Unit,
+        onError: (String) -> Unit
+    ) {
+        coroutineScope.launch(ModalityState.current().asContextElement()) {
+            withBackgroundProgress(project, message("action.background")) {
+                val result = executeCli(client, prompt)
+                withContext(Dispatchers.EDT) {
+                    result.fold(
+                        onSuccess = { onSuccess(it) },
+                        onFailure = { error -> onError(error.message ?: message("unknown-error")) }
+                    )
+                }
+            }
+        }
+    }
 }
