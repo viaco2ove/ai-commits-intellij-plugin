@@ -80,25 +80,35 @@ abstract class LlmClientService<C : LlmClientConfiguration>(private val cs: Coro
         }
     }
 
-    fun verifyConfiguration(client: C, label: JBLabel) {
+    open fun verifyConfiguration(client: C, label: JBLabel) {
         label.text = message("settings.verify.running")
         label.icon = AllIcons.General.InlineRefresh
         cs.launch(ModalityState.current().asContextElement()) {
-            makeRequest(client, "test", onSuccess = {
+            try {
+                withContext(Dispatchers.IO) {
+                    val model = buildChatModel(client)
+                    model.chat(listOf(UserMessage.from("user", "test"))).aiMessage().text()
+                }
                 withContext(Dispatchers.EDT) {
                     label.text = message("settings.verify.valid")
                     label.icon = AllIcons.General.InspectionsOK
                 }
-            }, onError = {
+            } catch (e: IllegalArgumentException) {
                 withContext(Dispatchers.EDT) {
-                    label.text = it.wrap(60)
+                    label.text = message("settings.verify.invalid", e.message ?: message("unknown-error")).wrap(60)
                     label.icon = AllIcons.General.InspectionsError
                 }
-            })
+            } catch (e: Exception) {
+                withContext(Dispatchers.EDT) {
+                    label.text = (e.message ?: message("unknown-error")).wrap(60)
+                    label.icon = AllIcons.General.InspectionsError
+                }
+                throw e
+            }
         }
     }
 
-    fun generateTestMessage(
+    open fun generateTestMessage(
         client: C,
         prompt: String,
         project: Project,

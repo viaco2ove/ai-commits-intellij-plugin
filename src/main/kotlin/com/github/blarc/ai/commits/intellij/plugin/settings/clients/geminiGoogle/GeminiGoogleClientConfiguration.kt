@@ -1,6 +1,5 @@
 package com.github.blarc.ai.commits.intellij.plugin.settings.clients.geminiGoogle
 
-import GeminiGoogleClientService
 import com.github.blarc.ai.commits.intellij.plugin.Icons
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.LlmClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.LlmClientSharedState

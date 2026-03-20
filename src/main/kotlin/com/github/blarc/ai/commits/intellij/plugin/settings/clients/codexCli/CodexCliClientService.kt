@@ -1,6 +1,8 @@
 package com.github.blarc.ai.commits.intellij.plugin.settings.clients.codexCli
 
 import com.github.blarc.ai.commits.intellij.plugin.AICommitsBundle.message
+import com.github.blarc.ai.commits.intellij.plugin.notifications.Notification
+import com.github.blarc.ai.commits.intellij.plugin.notifications.sendNotification
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.LlmCliClientService
 import com.github.blarc.ai.commits.intellij.plugin.wrap
 import com.intellij.icons.AllIcons
@@ -9,6 +11,7 @@ import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.application.asContextElement
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.components.service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.components.JBLabel
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
 @Service(Service.Level.APP)
@@ -26,6 +28,8 @@ class CodexCliClientService(private val cs: CoroutineScope) : LlmCliClientServic
         @JvmStatic
         fun getInstance(): CodexCliClientService = service()
     }
+
+    private val logger = Logger.getInstance(CodexCliClientService::class.java)
 
     override suspend fun executeCli(
         client: CodexCliClientConfiguration,
@@ -50,15 +54,10 @@ class CodexCliClientService(private val cs: CoroutineScope) : LlmCliClientServic
             )
         }
 
-        val outputFile = Files.createTempFile("codex-cli-", ".txt").toFile()
-        outputFile.deleteOnExit()
-
         val command = mutableListOf(
             resolvedPath,
             "exec",
-            "--skip-git-repo-check",
-            "--output-last-message",
-            outputFile.absolutePath
+            "--skip-git-repo-check"
         )
 
         if (client.modelId.isNotBlank()) {
@@ -76,6 +75,11 @@ class CodexCliClientService(private val cs: CoroutineScope) : LlmCliClientServic
         command.add(prompt)
 
         try {
+            logger.info(
+                "Codex CLI start: path=$resolvedPath, model=${client.modelId}, " +
+                    "reasoning=${resolveReasoningLevel(client)}, timeout=${client.timeout}s, " +
+                    "prompt=${truncateForLog(prompt)}"
+            )
             val process = ProcessBuilder(command)
                 .redirectErrorStream(true)
                 .start()
@@ -92,6 +96,7 @@ class CodexCliClientService(private val cs: CoroutineScope) : LlmCliClientServic
             if (!completed) {
                 process.destroyForcibly()
                 outputFuture.cancel(true)
+                logger.warn("Codex CLI timeout after ${client.timeout}s")
                 return@withContext Result.failure(
                     IllegalStateException(message("codexCli.timeout"))
                 )
@@ -101,23 +106,25 @@ class CodexCliClientService(private val cs: CoroutineScope) : LlmCliClientServic
                 outputFuture.get(5, TimeUnit.SECONDS)
             } catch (e: Exception) {
                 val cause = (e as? java.util.concurrent.ExecutionException)?.cause ?: e
+                logger.warn("Codex CLI output read failed: ${cause.message}", cause)
                 return@withContext Result.failure(
                     IllegalStateException("Failed to read CLI output: ${cause.message}", cause)
                 )
             }
 
             if (process.exitValue() != 0) {
+                logger.warn("Codex CLI exit code ${process.exitValue()}: ${truncateForLog(output)}")
                 return@withContext Result.failure(
                     IllegalStateException("CLI exited with code ${process.exitValue()}: $output")
                 )
             }
 
-            val messageText = readOutputMessage(outputFile)
-            parseCodexResponse(messageText, output)
+            val messageText = parseCodexResponse(output)
+            logger.info("Codex CLI success: output=${truncateForLog(output)}, message=${truncateForLog(messageText)}")
+            Result.success(messageText)
         } catch (e: Exception) {
+            logger.warn("Codex CLI failed: ${e.message}", e)
             Result.failure(e)
-        } finally {
-            outputFile.delete()
         }
     }
 
@@ -159,6 +166,11 @@ class CodexCliClientService(private val cs: CoroutineScope) : LlmCliClientServic
         return null
     }
 
+    private fun truncateForLog(text: String, limit: Int = 300): String {
+        val trimmed = text.replace("\n", "\\n").replace("\r", "\\r")
+        return if (trimmed.length <= limit) trimmed else trimmed.take(limit) + "...(len=${trimmed.length})"
+    }
+
     private fun findOnPath(): String? {
         val pathValue = System.getenv("PATH") ?: return null
         val candidates = if (SystemInfo.isWindows) {
@@ -184,25 +196,45 @@ class CodexCliClientService(private val cs: CoroutineScope) : LlmCliClientServic
         return extension in setOf("exe", "cmd", "bat", "com")
     }
 
-    private fun readOutputMessage(outputFile: File): String {
-        return try {
-            if (outputFile.exists()) {
-                outputFile.readText()
-            } else {
-                ""
-            }
-        } catch (e: Exception) {
-            ""
-        }
-    }
+    private fun parseCodexResponse(output: String): String {
+        val lines = output.lines()
+            .map { it.trimEnd() }
+            .filter { it.isNotBlank() }
 
-    private fun parseCodexResponse(messageText: String, output: String): Result<String> {
-        val candidate = messageText.trim().ifBlank { output.trim() }
-        return if (candidate.isBlank()) {
-            Result.failure(IllegalStateException("No result from Codex CLI"))
-        } else {
-            Result.success(candidate)
+        if (lines.isEmpty()) {
+            throw IllegalStateException("No result from Codex CLI")
         }
+
+        val tokensIndex = lines.indexOfFirst { it.lowercase().startsWith("tokens used") }
+        val relevantLines = if (tokensIndex > 0) lines.subList(0, tokensIndex) else lines
+
+        val lastCodexIndex = relevantLines.indexOfLast { it.equals("codex", ignoreCase = true) }
+        val contentLines = if (lastCodexIndex >= 0 && lastCodexIndex + 1 < relevantLines.size) {
+            relevantLines.subList(lastCodexIndex + 1, relevantLines.size)
+        } else {
+            relevantLines
+        }
+
+        val candidate = contentLines
+            .filterNot { it.equals("user", ignoreCase = true) }
+            .filterNot { it.equals("codex", ignoreCase = true) }
+            .filterNot { it.startsWith("OpenAI Codex", ignoreCase = true) }
+            .filterNot { it.startsWith("workdir:", ignoreCase = true) }
+            .filterNot { it.startsWith("model:", ignoreCase = true) }
+            .filterNot { it.startsWith("provider:", ignoreCase = true) }
+            .filterNot { it.startsWith("approval:", ignoreCase = true) }
+            .filterNot { it.startsWith("sandbox:", ignoreCase = true) }
+            .filterNot { it.startsWith("reasoning", ignoreCase = true) }
+            .filterNot { it.startsWith("session id:", ignoreCase = true) }
+            .filterNot { it.startsWith("mcp startup:", ignoreCase = true) }
+            .joinToString("\n")
+            .trim()
+
+        if (candidate.isBlank()) {
+            throw IllegalStateException("No result from Codex CLI")
+        }
+
+        return candidate
     }
 
     private fun normalizeReasoningLevel(level: String): String {
@@ -239,8 +271,10 @@ class CodexCliClientService(private val cs: CoroutineScope) : LlmCliClientServic
                         label.icon = AllIcons.General.InspectionsOK
                     },
                     onFailure = { error ->
-                        label.text = (error.message ?: message("unknown-error")).wrap(60)
+                        val errorMessage = error.message ?: message("unknown-error")
+                        label.text = message("settings.verify.invalid", errorMessage).wrap(60)
                         label.icon = AllIcons.General.InspectionsError
+                        sendNotification(Notification.unsuccessfulRequest(errorMessage))
                     }
                 )
             }
