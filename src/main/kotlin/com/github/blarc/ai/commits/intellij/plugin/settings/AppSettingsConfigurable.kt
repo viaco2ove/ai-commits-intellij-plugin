@@ -187,6 +187,9 @@ class AppSettingsConfigurable(val project: Project, cs: CoroutineScope) : BoundC
             } else {
                 AppSettings2.instance.activeLlmClientId = it.id
             }
+            // Explicitly changing active client in settings should override any
+            // previous split-button session selection.
+            project.service<ProjectSettings>().splitButtonActionSelectedLLMClientId = null
         }
     }
 

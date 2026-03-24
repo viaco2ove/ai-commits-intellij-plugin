@@ -143,3 +143,39 @@ Please see [LICENSE](LICENSE) for details.
 3. **建立连接**
    - 点击 `连接Claude Code` 按钮
    - 等待连接状态变为 "已连接"
+
+### 开发步骤
+
+1. **导入项目**
+   ```bash
+   git clone <repository-url>
+   cd claude_plugin
+   ./gradlew idea
+   ```
+
+2. **运行开发实例**
+   ```bash
+   ./gradlew runIde
+   ```
+   这将启动一个带有插件的IDEA实例用于测试
+
+3. **构建和测试**
+   如果要清理缓存
+```bash
+   .\gradlew.bat clean build--no-daemon--refresh-dependencies
+  .\gradlew.bat build --no-daemon
+```
+
+   ```bash
+   # 构建插件
+   .\gradlew.bat buildPlugin --no-daemon
+   
+   ./gradlew buildPlugin
+   
+   # 运行测试
+   ./gradlew test
+   
+   # 验证插件
+   ./gradlew verifyPlugin
+   ```
+

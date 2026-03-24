@@ -144,3 +144,35 @@ The plug-in is under review and is expected to be installed through the official
 3. ** Establish connection **
    - Click the `Connect Claude Code` button
    - Wait for the connection status to change to "Connected"
+
+
+###Development steps
+1. ** Import projects **
+   ```bash
+   git clone <repository-url>
+   cd claude_plugin
+   ./gradlew idea
+   ```
+2. ** Running development examples **
+   ```bash
+   ./gradlew runIde
+   ```
+   This will launch an IDEA instance with a plug-in for testing
+3. ** Build and test **
+   If you want to clean up the cache
+```bash
+   .\ gradlew.bat clean build--no-daemon--refresh-dependencies
+  .\ gradlew.bat build --no-daemon
+```
+   ```bash
+   #Build plug-ins
+   .\ gradlew.bat buildPlugin --no-daemon
+   
+   ./gradlew buildPlugin
+   
+   #Run the test
+   ./gradlew test
+   
+   #Verify Plug-ins
+   ./gradlew verifyPlugin
+   ``` 
