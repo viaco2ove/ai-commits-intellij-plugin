@@ -12,6 +12,7 @@ import com.github.blarc.ai.commits.intellij.plugin.settings.clients.claudeCode.C
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.codexCli.CodexCliClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.deepseek.DeepseekClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.geminiGoogle.GeminiGoogleClientConfiguration
+import com.github.blarc.ai.commits.intellij.plugin.settings.clients.minimax.MiniMaxClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.geminiVertex.GeminiClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.githubModels.GitHubModelsClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.huggingface.HuggingFaceClientConfiguration
@@ -74,7 +75,8 @@ class AppSettings2 : PersistentStateComponent<AppSettings2> {
             ClaudeCodeClientConfiguration::class,
             CodexCliClientConfiguration::class,
             DeepseekClientConfiguration::class,
-            LmStudioClientConfiguration::class
+            LmStudioClientConfiguration::class,
+            MiniMaxClientConfiguration::class
         ],
         style = XCollection.Style.v2
     )

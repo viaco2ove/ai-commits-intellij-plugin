@@ -33,6 +33,7 @@ object Icons {
     val AMAZON_BEDROCK = AICommitsIcon("/icons/amazonBedrock15.svg", "/icons/amazonBedrock15.svg")
     val DEEPSEEK = AICommitsIcon("/icons/openai15bright.svg", "/icons/openai15dark.svg")
     val LM_STUDIO = AICommitsIcon("/icons/openai15bright.svg", "/icons/openai15dark.svg")
+    val MINIMAX = AICommitsIcon("/icons/openai15bright.svg", "/icons/openai15dark.svg")
 
     object Process {
         val STOP = AICommitsIcon("/icons/stop.svg", "/icons/stop_dark.svg")

@@ -14,6 +14,7 @@ import com.github.blarc.ai.commits.intellij.plugin.settings.clients.geminiVertex
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.githubModels.GitHubModelsClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.huggingface.HuggingFaceClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.lmStudio.LmStudioClientConfiguration
+import com.github.blarc.ai.commits.intellij.plugin.settings.clients.minimax.MiniMaxClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.mistral.MistralAIClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.ollama.OllamaClientConfiguration
 import com.github.blarc.ai.commits.intellij.plugin.settings.clients.openAi.OpenAiClientConfiguration
@@ -169,7 +170,8 @@ class LlmClientTable {
                     ClaudeCodeClientConfiguration(),
                     CodexCliClientConfiguration(),
                     DeepseekClientConfiguration(),
-                    LmStudioClientConfiguration()
+                    LmStudioClientConfiguration(),
+                    MiniMaxClientConfiguration()
                 ).sortedBy { it.getClientName() }
             } else {
                 listOf(newLlmClientConfiguration)
