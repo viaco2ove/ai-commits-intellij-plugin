@@ -161,12 +161,12 @@ The plug-in is under review and is expected to be installed through the official
 3. ** Build and test **
    If you want to clean up the cache
 ```bash
-   .\ gradlew.bat clean build--no-daemon--refresh-dependencies
-  .\ gradlew.bat build --no-daemon
+   ./gradlew clean build--no-daemon--refresh-dependencies
+  ./gradlew build --no-daemon
 ```
    ```bash
    #Build plug-ins
-   .\ gradlew.bat buildPlugin --no-daemon
+   ./gradlew buildPlugin --no-daemon
    
    ./gradlew buildPlugin
    
